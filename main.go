@@ -9,6 +9,7 @@
 package main
 
 import (
+	"SimonBK_Historical_Vehicles/docs"
 	"SimonBK_Historical_Vehicles/infra/db"
 
 	"SimonBK_Historical_Vehicles/routers"
@@ -21,7 +22,6 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/swag/example/basic/docs"
 )
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Mi API"
 	docs.SwaggerInfo.Description = "Esta es mi API"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:60030"
+	docs.SwaggerInfo.Host = "localhost:60060"
 	docs.SwaggerInfo.BasePath = "/"
 
 	if err != nil {

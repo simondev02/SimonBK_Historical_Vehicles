@@ -17,6 +17,7 @@ func SetupRouter(r *gin.Engine) {
 	{
 		historicalGroup.GET("/", controllers.GetAllAvlRecordsHandler)
 		historicalGroup.GET("/:id", controllers.GetAvlRecordByIDHandler)
+		historicalGroup.GET("/point/", controllers.GetAllAvlRecordsPointHandler)
 
 	}
 }

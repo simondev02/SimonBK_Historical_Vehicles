@@ -7,10 +7,23 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-// GetAllAvlRecordsHandler maneja la solicitud GET para obtener todos los registros Avl
+// @Summary Obtiene todos los registros Avl
+// @Description Recupera todos los registros Avl con opciones de paginación y filtrado por FkCompany y FkCustomer si están presentes en el contexto.
+// @Tags AvlRecords
+// @Accept  json
+// @Produce  json
+// @Param page query int false "Número de página para la paginación" default(1)
+// @Param pageSize query int false "Tamaño de página para la paginación" default(10)
+// @Param Plate query string false "Placa del vehículo"
+// @Param Imei query string false "Imei del dispositivo"
+// @Param fromDate query string false "Fecha de inicio para filtrar los registros Avl"
+// @Param toDate query string false "Fecha de fin para filtrar los registros Avl"
+// @Success 200 {array} swagger.AvlRecord "Lista de registros Avl"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Security ApiKeyAuth
+// @Router /avlrecords/ [get]
 func GetAllAvlRecordsHandler(c *gin.Context) {
 
 	var fkCompany *int
@@ -33,30 +46,19 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 		}
 	}
 
-	records, err := services.GetAllAvlRecords(db.DBConn, fkCompany, fkCustomer)
+	// Obtener parámetros de paginación de la solicitud
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	Plate := c.DefaultQuery("Plate", "")
+	Imei := c.DefaultQuery("Imei", "")
+	fromDateStr := c.DefaultQuery("fromDate", "")
+	toDateStr := c.DefaultQuery("toDate", "")
+
+	records, err := services.GetAllAvlRecords(db.DBConn, fkCompany, fkCustomer, page, pageSize, &Plate, &Imei, fromDateStr, toDateStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener registros Avl"})
 		return
 	}
 
 	c.JSON(http.StatusOK, records)
-}
-
-// GetAvlRecordByIDHandler maneja la solicitud GET para obtener un registro Avl por ID
-func GetAvlRecordByIDHandler(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-		return
-	}
-	record, err := services.GetAvlRecordByID(db.DBConn, uint(id))
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, record)
 }
