@@ -131,6 +131,12 @@ const docTemplate = `{
                         "description": "Fecha de inicio para filtrar los registros Avl",
                         "name": "fromDate",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de fin para filtrar los registros Avl",
+                        "name": "toDate",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -258,8 +264,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:60030",
 	BasePath:         "/Vehicle",
 	Schemes:          []string{},
-	Title:            "Mi API",
-	Description:      "Esta es mi API",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

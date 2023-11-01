@@ -11,15 +11,25 @@ import (
 )
 
 // GetAllAvlRecords obtiene todos los registros Avl
-func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pageSize int, Plate *string, Imei *string, fromDateStr string, toDateStr string) (views.AvlRecord, error) {
+func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pageSize int, Plate *string, Imei *string, fromDateStr string, toDateStr string) (views.Salida, error) {
 	// Convertir las fechas de string a time.Time
-	fromDate, err := time.Parse("2006-01-02", fromDateStr)
-	if err != nil {
-		return views.AvlRecord{}, err
-	}
-	toDate, err := time.Parse("2006-01-02", toDateStr)
-	if err != nil {
-		return views.AvlRecord{}, err
+	var fromDate, toDate time.Time
+	var err error
+
+	if fromDateStr == "" && toDateStr == "" {
+		// Si no se proporcionan las fechas, establecer un rango predeterminado desde la hora actual hasta un mes atrás
+		toDate = time.Now()
+		fromDate = toDate.AddDate(0, -1, 0) // Resta un mes a la fecha actual
+	} else {
+		// Si se proporcionan las fechas, convertirlas de string a time.Time
+		fromDate, err = time.Parse("2006-01-02", fromDateStr)
+		if err != nil {
+			return views.Salida{}, err
+		}
+		toDate, err = time.Parse("2006-01-02", toDateStr)
+		if err != nil {
+			return views.Salida{}, err
+		}
 	}
 
 	// Asegurarse de que toDate vaya hasta la última hora del día
@@ -55,26 +65,26 @@ func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 	// Calcular el total de registros
 	var total int64
 	if err := query.Model(&models.AvlRecord{}).Count(&total).Error; err != nil {
-		return views.AvlRecord{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
+		return views.Salida{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
 	}
 	// Aplicar paginación
 	query = query.Offset((page - 1) * pageSize).Limit(pageSize)
 
 	var records []models.AvlRecord
 	if err := query.Find(&records).Error; err != nil {
-		return views.AvlRecord{}, err
+		return views.Salida{}, err
 	}
 
 	var responseRecords []views.AvlRecordresponse
 	for _, record := range records {
 		var properties map[string]interface{}
 		if err := json.Unmarshal([]byte(record.Properties), &properties); err != nil {
-			return views.AvlRecord{}, err
+			return views.Salida{}, err
 		}
 		formattedTimeStamp, err := FormatTimestamp(record.TimeStampEvent)
 		if err != nil {
 			fmt.Println("Error al formatear la fecha:", err)
-			return views.AvlRecord{}, err
+			return views.Salida{}, err
 		}
 		responseRecord := views.AvlRecordresponse{
 			ID:             record.ID,
@@ -103,7 +113,7 @@ func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 		responseRecords = append(responseRecords, responseRecord)
 	}
 
-	return views.AvlRecord{
+	return views.Salida{
 		Page:     page,
 		PageSize: pageSize,
 		Total:    int(total),

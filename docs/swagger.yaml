@@ -59,8 +59,6 @@ definitions:
 host: localhost:60030
 info:
   contact: {}
-  description: Esta es mi API
-  title: Mi API
   version: "1"
 paths:
   /avlrecords/:
@@ -134,6 +132,10 @@ paths:
       - description: Fecha de inicio para filtrar los registros Avl
         in: query
         name: fromDate
+        type: string
+      - description: Fecha de fin para filtrar los registros Avl
+        in: query
+        name: toDate
         type: string
       produces:
       - application/json

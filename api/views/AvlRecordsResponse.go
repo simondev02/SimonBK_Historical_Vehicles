@@ -1,12 +1,5 @@
 package views
 
-type AvlRecord struct {
-	Page     int                 `json:"page"`
-	PageSize int                 `json:"pageSize"`
-	Total    int                 `json:"total"`
-	Result   []AvlRecordresponse `json:"result"`
-}
-
 type AvlRecordresponse struct {
 	ID             uint                   `json:"id"`
 	CreatedAt      string                 `json:"created_at"`

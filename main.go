@@ -1,5 +1,5 @@
-// @title Mi API
-// @description Esta es mi API
+// @API Historicos Avl
+// @Se encuentra el hostoricos de registro generados por los vehiculo y dispositivos
 // @version 1
 // @host localhost:60030
 // @BasePath /Vehicle

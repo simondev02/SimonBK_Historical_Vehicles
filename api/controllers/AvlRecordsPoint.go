@@ -5,6 +5,7 @@ import (
 	"SimonBK_Historical_Vehicles/infra/db"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,7 @@ import (
 // @Param Plate query string false "Placa del vehículo"
 // @Param Imei query string false "Imei del dispositivo"
 // @Param fromDate query string false "Fecha de inicio para filtrar los registros Avl"
+// @Param toDate query string false "Fecha de fin para filtrar los registros Avl"
 // @Success 200 {array} swagger.AvlRecordPoint "Lista de puntos de registros Avl"
 // @Failure 500 {object} map[string]string "Internal Server Error"
 // @Security ApiKeyAuth
@@ -30,8 +32,11 @@ func GetAllAvlRecordsPointHandler(c *gin.Context) {
 	Plate := c.DefaultQuery("Plate", "")
 	Imei := c.DefaultQuery("Imei", "")
 	fromDateStr := c.DefaultQuery("fromDate", "")
+	toDateStr := c.DefaultQuery("toDate", "")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
 
-	records, err := services.GetAllAvlRecordsPoint(db.DBConn, fkCompany, fkCustomer, &Plate, &Imei, fromDateStr)
+	records, err := services.GetAllAvlRecordsPoint(db.DBConn, fkCompany, fkCustomer, &Plate, &Imei, fromDateStr, toDateStr, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error al obtener registros Avl: %v", err)})
 		return

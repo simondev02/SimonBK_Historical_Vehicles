@@ -1,8 +1,6 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Esta es mi API",
-        "title": "Mi API",
         "contact": {},
         "version": "1"
     },
@@ -124,6 +122,12 @@
                         "type": "string",
                         "description": "Fecha de inicio para filtrar los registros Avl",
                         "name": "fromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de fin para filtrar los registros Avl",
+                        "name": "toDate",
                         "in": "query"
                     }
                 ],

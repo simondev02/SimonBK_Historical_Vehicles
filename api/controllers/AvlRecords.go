@@ -5,6 +5,7 @@ import (
 	"SimonBK_Historical_Vehicles/infra/db"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,6 +54,24 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 	Imei := c.DefaultQuery("Imei", "")
 	fromDateStr := c.DefaultQuery("fromDate", "")
 	toDateStr := c.DefaultQuery("toDate", "")
+
+	// Convertir las fechas de string a time.Time
+	fromDate, err := time.Parse("2006-01-02", fromDateStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha de inicio inválida"})
+		return
+	}
+	toDate, err := time.Parse("2006-01-02", toDateStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha final inválida"})
+		return
+	}
+
+	// Verificar que la fecha final no sea menor que la fecha de inicio
+	if toDate.Before(fromDate) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha final no puede ser menor que la fecha de inicio"})
+		return
+	}
 
 	records, err := services.GetAllAvlRecords(db.DBConn, fkCompany, fkCustomer, page, pageSize, &Plate, &Imei, fromDateStr, toDateStr)
 	if err != nil {

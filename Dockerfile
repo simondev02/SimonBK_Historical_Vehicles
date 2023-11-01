@@ -17,7 +17,7 @@ COPY . .
 RUN go build -o SimonBK_vehiculos .
 
 # Exponer el puerto 8003
-EXPOSE 60030
+EXPOSE 60060
 
 # Comando para ejecutar la aplicación
-CMD ["./SimonBK_vehiculos"]
+CMD ["./SimonBK_Historical_vehicles"]
