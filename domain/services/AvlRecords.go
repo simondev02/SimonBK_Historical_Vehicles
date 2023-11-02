@@ -42,12 +42,12 @@ func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 
 	// Filtro por Plate
 	if Plate != nil && *Plate != "" {
-		query = query.Where("plate = ?", *Plate)
+		query = query.Where("plate LIKE = ?", "%"+*Plate+"%")
 	}
 
 	// Filtro por Imei
 	if Imei != nil && *Imei != "" {
-		query = query.Where("imei = ?", *Imei)
+		query = query.Where("imei LIKE = ?", "%"+*Imei+"%")
 	}
 
 	// Filtro por rango de fechas de TimeStampEvent

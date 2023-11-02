@@ -19,8 +19,8 @@ import (
 // @Param pageSize query int false "Tamaño de página para la paginación" default(10)
 // @Param Plate query string false "Placa del vehículo"
 // @Param Imei query string false "Imei del dispositivo"
-// @Param fromDate query string false "Fecha de inicio para filtrar los registros Avl"
-// @Param toDate query string false "Fecha de fin para filtrar los registros Avl"
+// @Param fromDate query string false "Fecha de inicio para filtrar los registros Avl" 2004-09-30
+// @Param toDate query string false "Fecha de fin para filtrar los registros Avl" 2004-09-30
 // @Success 200 {array} swagger.AvlRecord "Lista de registros Avl"
 // @Failure 500 {object} map[string]string "Internal Server Error"
 // @Security ApiKeyAuth
