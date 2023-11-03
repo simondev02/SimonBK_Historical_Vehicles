@@ -24,7 +24,7 @@ func ConnectDB() error {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
-	DSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPass, dbName)
+	DSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", dbHost, dbPort, dbUser, dbPass, dbName)
 
 	//var err error
 	DBConn, err = gorm.Open(postgres.Open(DSN), &gorm.Config{})
