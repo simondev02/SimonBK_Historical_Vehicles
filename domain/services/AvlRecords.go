@@ -4,6 +4,7 @@ import (
 	"SimonBK_Historical_Vehicles/api/views"
 	"SimonBK_Historical_Vehicles/domain/models" // Reemplaza "tu_paquete" con el nombre correcto de tu paquete
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -12,28 +13,39 @@ import (
 
 // GetAllAvlRecords obtiene todos los registros Avl
 func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pageSize int, Plate *string, Imei *string, fromDateStr string, toDateStr string) (views.Salida, error) {
+
+	fmt.Println("fromDateStr:", fromDateStr)
+	fmt.Println("toDateStr:", toDateStr)
+
 	// Convertir las fechas de string a time.Time
 	var fromDate, toDate time.Time
 	var err error
-
+	// Caso 1: Ambas fechas están vacías
 	if fromDateStr == "" && toDateStr == "" {
-		// Si no se proporcionan las fechas, establecer un rango predeterminado desde la hora actual hasta un mes atrás
-		toDate = time.Now()
-		fromDate = toDate.AddDate(0, -1, 0) // Resta un mes a la fecha actual
+		now := time.Now()
+		fromDate = now.AddDate(0, 0, -15)
+		toDate = now
+
+		// Caso 2: Solo una de las fechas está vacía
+	} else if fromDateStr == "" || toDateStr == "" {
+		return views.Salida{}, errors.New("por favor, especifique ambas fechas o deje ambas vacías para usar el rango predeterminado")
+
+		// Caso 3: Ambas fechas se proporcionan
 	} else {
-		// Si se proporcionan las fechas, convertirlas de string a time.Time
 		fromDate, err = time.Parse("2006-01-02", fromDateStr)
 		if err != nil {
-			return views.Salida{}, err
+			return views.Salida{}, errors.New("fecha de inicio inválida")
 		}
 		toDate, err = time.Parse("2006-01-02", toDateStr)
 		if err != nil {
-			return views.Salida{}, err
+			return views.Salida{}, errors.New("fecha de finalización inválida")
 		}
 	}
 
 	// Asegurarse de que toDate vaya hasta la última hora del día
-	toDate = toDate.Add(time.Hour*23 + time.Minute*59 + time.Second*59)
+	if !toDate.IsZero() {
+		toDate = toDate.Add(time.Hour*23 + time.Minute*59 + time.Second*59)
+	}
 
 	// Calcular el offset basado en la página y el tamaño de página
 	offset := (page - 1) * pageSize
@@ -42,16 +54,16 @@ func GetAllAvlRecords(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 
 	// Filtro por Plate
 	if Plate != nil && *Plate != "" {
-		query = query.Where("plate LIKE = ?", "%"+*Plate+"%")
+		query = query.Where("plate LIKE  ?", "%"+*Plate+"%")
 	}
 
 	// Filtro por Imei
 	if Imei != nil && *Imei != "" {
-		query = query.Where("imei LIKE = ?", "%"+*Imei+"%")
+		query = query.Where("imei LIKE  ?", "%"+*Imei+"%")
 	}
 
 	// Filtro por rango de fechas de TimeStampEvent
-	if !fromDate.IsZero() && !toDate.IsZero() {
+	if !fromDate.IsZero() || !toDate.IsZero() {
 		query = query.Where("time_stamp_event BETWEEN ? AND ?", fromDate, toDate)
 	}
 

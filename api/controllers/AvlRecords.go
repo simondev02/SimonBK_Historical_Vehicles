@@ -55,16 +55,29 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 	fromDateStr := c.DefaultQuery("fromDate", "")
 	toDateStr := c.DefaultQuery("toDate", "")
 
-	// Convertir las fechas de string a time.Time
-	fromDate, err := time.Parse("2006-01-02", fromDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha de inicio inválida"})
-		return
+	var fromDate, toDate time.Time
+	var err error
+
+	if fromDateStr != "" {
+		fromDate, err = time.Parse("2006-01-02", fromDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha de inicio inválida"})
+			return
+		}
 	}
-	toDate, err := time.Parse("2006-01-02", toDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha final inválida"})
-		return
+
+	if toDateStr != "" {
+		toDate, err = time.Parse("2006-01-02", toDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha final inválida"})
+			return
+		}
+	}
+
+	if fromDateStr == "" && toDateStr == "" {
+		now := time.Now()
+		fromDate = now.AddDate(0, 0, -15)
+		toDate = now
 	}
 
 	// Verificar que la fecha final no sea menor que la fecha de inicio
