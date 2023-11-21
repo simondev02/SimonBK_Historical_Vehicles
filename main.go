@@ -1,7 +1,7 @@
 // @API Historicos Avl
 // @Se encuentra el hostoricos de registro generados por los vehiculo y dispositivos
 // @version 1
-// @host localhost:60030
+// @host localhost:60060
 // @BasePath /Vehicle
 // @SecurityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -61,11 +61,6 @@ func main() {
 
 	// Agregar la ruta de Swagger sin el middleware de validación de token
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// Imprimir todas las rutas disponibles
-	for _, route := range r.Routes() {
-		fmt.Println(route.Path)
-	}
 
 	// Configurar la señal de captura
 	c := make(chan os.Signal, 1)

@@ -9,11 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllAvlRecordsPoint(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *string, Imei *string, fromDateStr string, toDateStr string, page int, pageSize int) (views.SalidaPoint, error) {
+func GetAllHistoricalTours(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *string, Imei *string, fromDateStr string, toDateStr string, page int, pageSize int) (views.Return, error) {
 
 	// Comprobar si se proporcionó un parámetro Imei o Plate
 	if (Imei == nil || *Imei == "") && (Plate == nil || *Plate == "") {
-		return views.SalidaPoint{}, fmt.Errorf("debe proporcionar un parámetro Imei o Plate")
+		return views.Return{}, fmt.Errorf("debe proporcionar un parámetro Imei o Plate")
 	}
 
 	// Convertir la fecha de string a time.Time
@@ -26,13 +26,18 @@ func GetAllAvlRecordsPoint(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 		fromDate = toDate.Add(-8 * time.Hour)
 	} else {
 		// Si se proporcionan las fechas, convertirlas de string a time.Time
-		fromDate, err = time.Parse("2006-01-02 15:04:05", fromDateStr)
+		fromDate, err = time.Parse(time.RFC3339, fromDateStr)
 		if err != nil {
-			return views.SalidaPoint{}, err
+			return views.Return{}, fmt.Errorf("la fecha de inicio proporcionada no es válida: %w", err)
 		}
-		toDate, err = time.Parse("2006-01-02 15:04:05", toDateStr)
+
+		toDate, err = time.Parse(time.RFC3339, toDateStr)
 		if err != nil {
-			return views.SalidaPoint{}, err
+			return views.Return{}, fmt.Errorf("la fecha final proporcionada no es válida: %w", err)
+		}
+
+		if fromDate.After(toDate) {
+			return views.Return{}, fmt.Errorf("la fecha de inicio no puede ser posterior a la fecha final")
 		}
 	}
 
@@ -71,7 +76,15 @@ func GetAllAvlRecordsPoint(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 	// Calcular el total de registros
 	var total int64
 	if err := query.Model(&models.AvlRecord{}).Count(&total).Error; err != nil {
-		return views.SalidaPoint{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
+		return views.Return{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
+	}
+
+	// Si los parámetros de paginación están vacíos, establecer page y pageSize al total de registros
+
+	if page == 0 && pageSize == 0 {
+		page = 1
+		pageSize = int(total)
+
 	}
 
 	// Aplicar paginación
@@ -82,21 +95,20 @@ func GetAllAvlRecordsPoint(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 
 	var records []models.AvlRecord
 	if err := query.Find(&records).Error; err != nil {
-		return views.SalidaPoint{}, fmt.Errorf("error al obtener registros Avl: %w", err)
+		return views.Return{}, fmt.Errorf("error al obtener registros Avl: %w", err)
 	}
 
-	var responseRecordsPoint []views.AvlRecordPointResponse
+	var responseRecordsPoint []interface{}
 	for _, record := range records {
 
-		formattedTimeStamp, err := FormatTimestamp(record.TimeStampEvent)
 		if err != nil {
-			return views.SalidaPoint{}, fmt.Errorf("error al formatear la fecha: %w", err)
+			return views.Return{}, fmt.Errorf("error al formatear la fecha: %w", err)
 		}
-		responseRecordPoint := views.AvlRecordPointResponse{
+		responseRecordPoint := views.Tours{
 			ID:             record.ID,
 			Plate:          record.Plate,
 			Imei:           record.Imei,
-			TimeStampEvent: formattedTimeStamp,
+			TimeStampEvent: record.TimeStampEvent,
 			Location:       record.Location,
 			Latitude:       record.Latitude,
 			Longitude:      record.Longitude,
@@ -105,7 +117,7 @@ func GetAllAvlRecordsPoint(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 		responseRecordsPoint = append(responseRecordsPoint, responseRecordPoint)
 	}
 
-	return views.SalidaPoint{
+	return views.Return{
 		Page:     page,
 		PageSize: pageSize,
 		Total:    int(total),

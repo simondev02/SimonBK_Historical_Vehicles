@@ -1,7 +1,8 @@
 package routers
 
 import (
-	"SimonBK_Historical_Vehicles/api/controllers"
+	historical "SimonBK_Historical_Vehicles/api/controllers/historical"
+	tours "SimonBK_Historical_Vehicles/api/controllers/tours"
 	"SimonBK_Historical_Vehicles/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,17 @@ func SetupRouter(r *gin.Engine) {
 	r.Use(middleware.ValidateTokenMiddleware())
 
 	// Grupo de rutas para vehiculos
-	historicalGroup := r.Group("/avlrecords")
+	avlRecordsGroup := r.Group("/avlrecords")
 	{
-		historicalGroup.GET("/", controllers.GetAllAvlRecordsHandler)
-		historicalGroup.GET("/:id", controllers.GetAvlRecordByIDHandler)
-		historicalGroup.GET("/point/", controllers.GetAllAvlRecordsPointHandler)
+		avlRecordsGroup.GET("/", historical.GetAllAvlRecordsHandler)
+		avlRecordsGroup.GET("/:id", historical.GetAvlRecordByIDHandler)
+	}
 
+	// Grupo de rutas para vehiculos
+	toursGroup := r.Group("/tours")
+	{
+		toursGroup.GET("/", tours.GetAllHistoricalToursHandler)
+		toursGroup.GET("/:id", tours.GetHistoricalToursByIdHandler)
+		toursGroup.GET("/excel/", tours.GetAllExcelToursHandler)
 	}
 }

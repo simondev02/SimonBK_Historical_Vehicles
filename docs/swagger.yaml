@@ -2,61 +2,61 @@ basePath: /Vehicle
 definitions:
   swagger.AvlRecord:
     properties:
-      Altitude:
+      altitude:
         type: integer
-      Angle:
+      angle:
         type: integer
-      Company:
+      company:
         type: string
-      Customer:
+      customer:
         type: string
-      Event:
+      event:
         type: string
-      Hdop:
+      hdop:
         type: integer
-      Imei:
-        type: string
-      Ip:
-        type: string
-      Latitude:
-        type: number
-      Location:
-        type: string
-      Longitude:
-        type: number
-      Pdop:
-        type: integer
-      Plate:
-        type: string
-      Properties:
-        type: string
-      Satellites:
-        type: integer
-      Speed:
-        type: integer
-      TimeStampEvent:
-        type: string
       id_company:
         type: integer
       id_customer:
         type: integer
+      imei:
+        type: string
+      ip:
+        type: string
+      latitude:
+        type: number
+      location:
+        type: string
+      longitude:
+        type: number
+      pdop:
+        type: integer
+      plate:
+        type: string
+      properties:
+        type: string
+      satellites:
+        type: integer
+      speed:
+        type: integer
+      timeStampEvent:
+        type: string
     type: object
   swagger.AvlRecordPoint:
     properties:
-      Latitude:
-        type: number
-      Location:
-        type: string
-      Longitude:
-        type: number
-      Plate:
-        type: string
-      TimeStampEvent:
-        type: string
       id:
         type: integer
+      latitude:
+        type: number
+      location:
+        type: string
+      longitude:
+        type: number
+      plate:
+        type: string
+      timeStampEvent:
+        type: string
     type: object
-host: localhost:60030
+host: localhost:60060
 info:
   contact: {}
   version: "1"
@@ -114,13 +114,58 @@ paths:
       summary: Obtiene todos los registros Avl
       tags:
       - AvlRecords
-  /avlrecords/point/:
+  /avlrecords/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene un historico por su ID específico
+      parameters:
+      - description: ID del Historico
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detalles del vehículo
+          schema:
+            $ref: '#/definitions/swagger.AvlRecord'
+        "400":
+          description: 'Error: ID inválido'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Error: Vehículo no encontrado'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Obtiene un historico específico
+      tags:
+      - AvlRecords
+  /tours/:
     get:
       consumes:
       - application/json
       description: Recupera todos los puntos de registros Avl con opciones de paginación
         y filtrado por FkCompany y FkCustomer si están presentes en el contexto.
       parameters:
+      - default: 1
+        description: Número de página para la paginación
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Tamaño de página para la paginación
+        in: query
+        name: pageSize
+        type: integer
       - description: Placa del vehículo
         in: query
         name: Plate
@@ -156,7 +201,95 @@ paths:
       - ApiKeyAuth: []
       summary: Obtiene todos los puntos de registros Avl
       tags:
-      - AvlRecordsPoints
+      - Tours
+  /tours/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene un historico por su ID específico
+      parameters:
+      - description: ID del Historico
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detalles del vehículo
+          schema:
+            $ref: '#/definitions/swagger.AvlRecord'
+        "400":
+          description: 'Error: ID inválido'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Error: Vehículo no encontrado'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Obtiene un historico específico
+      tags:
+      - Tours
+  /tours/excel/:
+    get:
+      consumes:
+      - application/json
+      description: Recupera todos los puntos de registros Avl con opciones de paginación
+        y filtrado por FkCompany y FkCustomer si están presentes en el contexto.
+      parameters:
+      - default: 1
+        description: Número de página para la paginación
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Tamaño de página para la paginación
+        in: query
+        name: pageSize
+        type: integer
+      - description: Placa del vehículo
+        in: query
+        name: Plate
+        type: string
+      - description: Imei del dispositivo
+        in: query
+        name: Imei
+        type: string
+      - description: Fecha de inicio para filtrar los registros Avl
+        in: query
+        name: fromDate
+        type: string
+      - description: Fecha de fin para filtrar los registros Avl
+        in: query
+        name: toDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de puntos de registros Avl
+          schema:
+            items:
+              $ref: '#/definitions/swagger.AvlRecordPoint'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Obtiene todos los puntos de registros Avl
+      tags:
+      - Tours
 securityDefinitions:
   ApiKeyAuth:
     in: header

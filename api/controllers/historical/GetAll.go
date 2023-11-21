@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"SimonBK_Historical_Vehicles/domain/services"
+	services "SimonBK_Historical_Vehicles/domain/services/historical"
 	"SimonBK_Historical_Vehicles/infra/db"
 	"net/http"
 	"strconv"
@@ -55,29 +55,19 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 	fromDateStr := c.DefaultQuery("fromDate", "")
 	toDateStr := c.DefaultQuery("toDate", "")
 
+	// Obtener las fechas como objetos time.Time
 	var fromDate, toDate time.Time
 	var err error
-
-	if fromDateStr != "" {
-		fromDate, err = time.Parse("2006-01-02", fromDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha de inicio inválida"})
-			return
-		}
+	fromDate, err = time.Parse(time.RFC3339, c.DefaultQuery("fromDate", time.Now().AddDate(0, 0, -15).Format(time.RFC3339)))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha de inicio inválida"})
+		return
 	}
 
-	if toDateStr != "" {
-		toDate, err = time.Parse("2006-01-02", toDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha final inválida"})
-			return
-		}
-	}
-
-	if fromDateStr == "" && toDateStr == "" {
-		now := time.Now()
-		fromDate = now.AddDate(0, 0, -15)
-		toDate = now
+	toDate, err = time.Parse(time.RFC3339, c.DefaultQuery("toDate", time.Now().Format(time.RFC3339)))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Fecha final inválida"})
+		return
 	}
 
 	// Verificar que la fecha final no sea menor que la fecha de inicio
@@ -86,7 +76,7 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 		return
 	}
 
-	records, err := services.GetAllAvlRecords(db.DBConn, fkCompany, fkCustomer, page, pageSize, &Plate, &Imei, fromDateStr, toDateStr)
+	records, err := services.GetAllHistorical(db.DBConn, fkCompany, fkCustomer, page, pageSize, &Plate, &Imei, fromDateStr, toDateStr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener registros Avl"})
 		return
