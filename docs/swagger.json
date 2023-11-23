@@ -87,6 +87,72 @@
                 }
             }
         },
+        "/avlrecords/excel/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Recupera todos los puntos de registros Avl con opciones de paginación y filtrado por FkCompany y FkCustomer si están presentes en el contexto.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AvlRecords"
+                ],
+                "summary": "Obtiene todos los puntos de registros Avl",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Placa del vehículo",
+                        "name": "Plate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Imei del dispositivo",
+                        "name": "Imei",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de inicio para filtrar los registros Avl",
+                        "name": "fromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de fin para filtrar los registros Avl",
+                        "name": "toDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de puntos de registros Avl",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swagger.AvlRecordPoint"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/avlrecords/{id}": {
             "get": {
                 "security": [

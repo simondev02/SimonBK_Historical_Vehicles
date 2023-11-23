@@ -18,6 +18,7 @@ func SetupRouter(r *gin.Engine) {
 	{
 		avlRecordsGroup.GET("/", historical.GetAllAvlRecordsHandler)
 		avlRecordsGroup.GET("/:id", historical.GetAvlRecordByIDHandler)
+		avlRecordsGroup.GET("/excel", historical.GetAllExcelHistoricalHandler)
 	}
 
 	// Grupo de rutas para vehiculos
