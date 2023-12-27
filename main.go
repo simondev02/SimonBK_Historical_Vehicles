@@ -1,11 +1,3 @@
-// @API Historicos Avl
-// @Se encuentra el hostoricos de registro generados por los vehiculo y dispositivos
-// @version 1
-// @host localhost:60060
-// @BasePath /Vehicle
-// @SecurityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
 package main
 
 import (
@@ -48,7 +40,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Mi API"
 	docs.SwaggerInfo.Description = "Esta es mi API"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:60060"
+	docs.SwaggerInfo.Host = os.Getenv("SWAGGER_HOST" + ":" + os.Getenv("SERVICE_PORT"))
 	docs.SwaggerInfo.BasePath = "/"
 
 	if err != nil {
@@ -74,7 +66,7 @@ func main() {
 	}()
 
 	// Escuchar y servir
-	err = r.Run(":60060") // escucha y sirve en 0.0.0.0:60060  (por defecto)
+	err = r.Run(":" + os.Getenv("SERVICE_PORT")) // escucha y sirve en 0.0.0.0:60060  (por defecto)
 
 	if err != nil {
 		fmt.Println("Error al iniciar el servidor:", err)
