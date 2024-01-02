@@ -1,7 +1,6 @@
 // @API Historicos Avl
 // @Se encuentra el hostoricos de registro generados por los vehiculo y dispositivos
 // @version 1
-// @host localhost:60060
 // @BasePath /Vehicle
 // @SecurityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -11,6 +10,7 @@ package main
 import (
 	"SimonBK_Historical_Vehicles/docs"
 	"SimonBK_Historical_Vehicles/infra/db"
+	"log"
 
 	"SimonBK_Historical_Vehicles/routers"
 	"fmt"
@@ -48,7 +48,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Mi API"
 	docs.SwaggerInfo.Description = "Esta es mi API"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:60060"
+	docs.SwaggerInfo.Host = os.Getenv("SERVICE_HOST") + ":" + os.Getenv("SERVICE_PORT")
 	docs.SwaggerInfo.BasePath = "/"
 
 	if err != nil {
@@ -72,9 +72,15 @@ func main() {
 		db.CloseDB()
 		os.Exit(0)
 	}()
+	certFile := os.Getenv("TLS_CERT")
+	certKey := os.Getenv("TLS_KEY")
+	if certFile == "" || certKey == "" {
+		log.Println("Error al leer las variables de entorno.")
+		db.CloseDB()
+		os.Exit(1)
+	}
 
-	// Escuchar y servir
-	err = r.Run(":60060") // escucha y sirve en 0.0.0.0:60060  (por defecto)
+	err = r.RunTLS(":"+os.Getenv("SERVICE_PORT"), certFile, certKey) // escucha y sirve en 0.0.0.0:60060  (por defecto)
 
 	if err != nil {
 		fmt.Println("Error al iniciar el servidor:", err)

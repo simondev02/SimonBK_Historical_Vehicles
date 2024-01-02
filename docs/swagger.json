@@ -4,7 +4,6 @@
         "contact": {},
         "version": "1"
     },
-    "host": "localhost:60060",
     "basePath": "/Vehicle",
     "paths": {
         "/avlrecords/": {

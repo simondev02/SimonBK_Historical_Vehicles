@@ -56,7 +56,6 @@ definitions:
       timeStampEvent:
         type: string
     type: object
-host: localhost:60060
 info:
   contact: {}
   version: "1"
