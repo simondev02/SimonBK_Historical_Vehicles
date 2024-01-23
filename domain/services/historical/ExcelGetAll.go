@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -17,7 +18,7 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 	file := excelize.NewFile()
 
 	// Añadir encabezado
-	headers := []string{"ID", "Placa", "Imei", "Ip", "Fecha del evento", "Id compañia", "Compañia", "Id del cliente", "Cliente", "Ubicación", "Latitud", "Longitud", "Altitud", "Angulo", "Satelite", "Velocidad", "Hdop", "Pdop", "Evento"}
+	headers := []string{"ID", "Placa", "Imei", "Ip", "Fecha del evento", "Id compañia", "Compañia", "Id del cliente", "Cliente", "Ubicación", "Latitud", "Longitud", "Altitud", "Angulo", "Satelite", "Velocidad", "Hdop", "Pdop", "Evento", "Kilometraje Can", "Kilometraje Gps"}
 	for i, header := range headers {
 		file.SetCellValue("Sheet1", fmt.Sprintf("%c1", 'A'+i), header)
 	}
@@ -47,9 +48,9 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 		file.SetCellValue("Sheet1", fmt.Sprintf("Q%d", row), record.Hdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("R%d", row), record.Pdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), record.Event)
-		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), record.TotalMileage)
-		file.SetCellValue("Sheet1", fmt.Sprintf("U%d", row), record.TotalOdometer)
-		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), record.Properties)
+		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), math.Round(float64(record.TotalMileage)/1000))
+		file.SetCellValue("Sheet1", fmt.Sprintf("U%d", row), math.Round(float64(record.TotalOdometer)/1000))
+		file.SetCellValue("Sheet1", fmt.Sprintf("V%d", row), record.Properties)
 
 		// Para las propiedades adicionales, puedes decidir cómo manejarlas según tus necesidades
 	}

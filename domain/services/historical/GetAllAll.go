@@ -79,6 +79,16 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 			return nil, fmt.Errorf("error al deserializar Properties: %w", err)
 		}
 
+		totalMileage, ok := properties["Total Mileage"].(float64)
+		if !ok {
+			totalMileage = 0 // o cualquier valor predeterminado
+		}
+
+		totalOdometer, ok := properties["Total Odometer"].(float64)
+		if !ok {
+			totalOdometer = 0 // o cualquier valor predeterminado
+		}
+
 		responseRecord := views.HistoricalExcel{
 			ID:             record.ID,
 			Plate:          record.Plate,
@@ -99,8 +109,8 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 			Hdop:           record.Hdop,
 			Pdop:           record.Pdop,
 			Event:          record.Event,
-			TotalMileage:   properties["Total Mileage"].(float64),
-			TotalOdometer:  properties["Total Odometer"].(*float64),
+			TotalMileage:   totalMileage,
+			TotalOdometer:  totalOdometer,
 			Properties:     properties,
 		}
 
