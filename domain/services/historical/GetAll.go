@@ -3,6 +3,7 @@ package services
 import (
 	"SimonBK_Historical_Vehicles/api/views"
 	"SimonBK_Historical_Vehicles/domain/models" // Reemplaza "tu_paquete" con el nombre correcto de tu paquete
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -78,6 +79,16 @@ func GetAllHistorical(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 
 	var responseRecords []interface{}
 	for _, record := range records {
+		var properties views.Properties
+		err := json.Unmarshal([]byte(record.Properties), &properties)
+		if err != nil {
+			return views.Return{}, fmt.Errorf("error al deserializar las propiedades: %w", err)
+		}
+
+		var totalMileage *float64
+		if properties.TotalMileage != 0 {
+			totalMileage = &properties.TotalMileage
+		}
 
 		responseRecord := views.Historical{
 			ID:             record.ID,
@@ -86,6 +97,8 @@ func GetAllHistorical(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 			Location:       record.Location,
 			Speed:          record.Speed,
 			Event:          record.Event,
+			TotalMileage:   totalMileage,
+			TotalOdometer:  properties.TotalOdometer,
 		}
 
 		responseRecords = append(responseRecords, responseRecord)

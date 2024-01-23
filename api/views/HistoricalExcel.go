@@ -22,5 +22,7 @@ type HistoricalExcel struct {
 	Hdop           int                    `json:"hdop"`
 	Pdop           int                    `json:"pdop"`
 	Event          string                 `json:"event"`
+	TotalMileage   float64                `json:"Total Mileage"`
+	TotalOdometer  *float64               `json:"Total Odometer"`
 	Properties     map[string]interface{} `json:"properties"`
 }

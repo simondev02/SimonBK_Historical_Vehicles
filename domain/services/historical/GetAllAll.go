@@ -99,6 +99,8 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 			Hdop:           record.Hdop,
 			Pdop:           record.Pdop,
 			Event:          record.Event,
+			TotalMileage:   properties["Total Mileage"].(float64),
+			TotalOdometer:  properties["Total Odometer"].(*float64),
 			Properties:     properties,
 		}
 

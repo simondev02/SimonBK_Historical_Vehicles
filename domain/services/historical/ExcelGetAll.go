@@ -16,8 +16,8 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 
 	file := excelize.NewFile()
 
-	// Añadir encabezados
-	headers := []string{"ID", "Plate", "Imei", "Ip", "TimeStampEvent", "Id_company", "Company", "Id_customer", "Customer", "Location", "Latitude", "Longitude", "Altitude", "Angle", "Satellites", "Speed", "Hdop", "Pdop", "Event"}
+	// Añadir encabezado
+	headers := []string{"ID", "Placa", "Imei", "Ip", "Fecha del evento", "Id compañia", "Compañia", "Id del cliente", "Cliente", "Ubicación", "Latitud", "Longitud", "Altitud", "Angulo", "Satelite", "Velocidad", "Hdop", "Pdop", "Evento"}
 	for i, header := range headers {
 		file.SetCellValue("Sheet1", fmt.Sprintf("%c1", 'A'+i), header)
 	}
@@ -47,6 +47,8 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 		file.SetCellValue("Sheet1", fmt.Sprintf("Q%d", row), record.Hdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("R%d", row), record.Pdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), record.Event)
+		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), record.TotalMileage)
+		file.SetCellValue("Sheet1", fmt.Sprintf("U%d", row), record.TotalOdometer)
 		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), record.Properties)
 
 		// Para las propiedades adicionales, puedes decidir cómo manejarlas según tus necesidades

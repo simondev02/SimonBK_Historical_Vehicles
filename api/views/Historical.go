@@ -9,4 +9,11 @@ type Historical struct {
 	Location       string     `json:"location"`
 	Speed          int        `json:"speed"`
 	Event          string     `json:"event"`
+	TotalMileage   *float64   `json:"totalMileage"`
+	TotalOdometer  *float64   `json:"totalOdometer"`
+}
+
+type Properties struct {
+	TotalMileage  float64  `json:"Total Mileage"`
+	TotalOdometer *float64 `json:"Total Odometer"`
 }

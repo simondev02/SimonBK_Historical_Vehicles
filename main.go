@@ -32,6 +32,7 @@ func main() {
 		fmt.Println("Error al conectar con la base de datos:", err)
 		return
 	}
+
 	// Configurar CORS
 	r := gin.Default()
 
