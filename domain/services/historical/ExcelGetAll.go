@@ -55,7 +55,7 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 		// Para las propiedades adicionales, puedes decidir cómo manejarlas según tus necesidades
 	}
 
-	filename := "Historical.xlsx"
+	filename := "Reporte_General.xlsx"
 	if err := file.SaveAs(filename); err != nil {
 		return "", err
 	}

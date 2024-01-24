@@ -41,7 +41,7 @@ func DownloadHistoricalToursExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, 
 		file.SetCellValue("Sheet1", fmt.Sprintf("G%d", row), record.Longitude)
 	}
 
-	filename := "HistoricalTours.xlsx"
+	filename := fmt.Sprintf("Recorrido_%s_%s_%s.xlsx", *Plate, fromDateStr, toDateStr)
 	if err := file.SaveAs(filename); err != nil {
 		return "", err
 	}
