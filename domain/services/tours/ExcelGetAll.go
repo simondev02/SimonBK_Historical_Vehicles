@@ -18,12 +18,12 @@ func DownloadHistoricalToursExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, 
 
 	// Añadir encabezados
 	file.SetCellValue("Sheet1", "A1", "ID")
-	file.SetCellValue("Sheet1", "B1", "Plate")
+	file.SetCellValue("Sheet1", "B1", "Placa")
 	file.SetCellValue("Sheet1", "C1", "Imei")
-	file.SetCellValue("Sheet1", "D1", "TimeStampEvent")
-	file.SetCellValue("Sheet1", "E1", "Location")
-	file.SetCellValue("Sheet1", "F1", "Latitude")
-	file.SetCellValue("Sheet1", "G1", "Longitude")
+	file.SetCellValue("Sheet1", "D1", "Fecha de Evento")
+	file.SetCellValue("Sheet1", "E1", "Ubicación")
+	file.SetCellValue("Sheet1", "F1", "Latitud")
+	file.SetCellValue("Sheet1", "G1", "Longitud")
 
 	// Añadir datos
 	for i, intf := range data.Result {
