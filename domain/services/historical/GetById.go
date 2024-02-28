@@ -21,7 +21,7 @@ func GetHistoricalByID(db *gorm.DB, id uint) (*views.HistoricalById, error) {
 
 	// Deserializar las propiedades JSON
 	var properties map[string]interface{}
-	if err := json.Unmarshal([]byte(record.Properties), &properties); err != nil {
+	if err := json.Unmarshal([]byte(*record.Properties), &properties); err != nil {
 		return nil, err
 	}
 

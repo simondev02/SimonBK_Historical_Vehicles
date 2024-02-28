@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	inputs "SimonBK_Historical_Vehicles/api/views/inputs"
 	services "SimonBK_Historical_Vehicles/domain/services/tours"
 	"SimonBK_Historical_Vehicles/infra/db"
 	"fmt"
@@ -28,77 +29,68 @@ import (
 // @Security ApiKeyAuth
 // @Router /tours/excel/ [get]
 func GetAllExcelToursHandler(c *gin.Context) {
-	var fkCompany *int
-	var fkCustomer *int
 
-	fkCompanyValue, exists := c.Get("FkCompany")
-	if exists {
-		val, ok := fkCompanyValue.(int)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "FkCompany debe ser un número entero."})
-			return
-		}
+	var fkCompany *uint
+	if temp, exists := c.Get("FkCompany"); exists {
+		val := uint(temp.(int))
 		fkCompany = &val
 	}
 
-	fkCustomerValue, exists := c.Get("FkCustomer")
-	if exists {
-		val, ok := fkCustomerValue.(int)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "FkCustomer debe ser un número entero."})
-			return
-		}
+	var fkCustomer *uint
+	if temp, exists := c.Get("FkCustomer"); exists {
+		val := uint(temp.(int))
 		fkCustomer = &val
 	}
 
-	Plate := c.DefaultQuery("Plate", "")
-	Imei := c.DefaultQuery("Imei", "")
-	fromDateStr := c.DefaultQuery("fromDate", "")
-	toDateStr := c.DefaultQuery("toDate", "")
-	pageStr := c.DefaultQuery("page", "")
-	pageSizeStr := c.DefaultQuery("pageSize", "")
-
-	var page, pageSize int
-	var err error
-
-	if pageStr != "" {
-		page, err = strconv.Atoi(pageStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La página debe ser un número entero."})
-			return
-		}
+	var plate *string
+	if temp := c.Query("Plate"); temp != "" {
+		plate = &temp
 	}
-	if pageSizeStr != "" {
-		pageSize, err = strconv.Atoi(pageSizeStr)
-		fmt.Println(pageSize)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "El tamaño de la página debe ser un número entero."})
-			return
-		}
+	fmt.Println(plate)
+
+	var imei *string
+	if temp := c.Query("imei"); temp != "" {
+		imei = &temp
 	}
 
-	// Manejar la lógica de fechas
-	var fromDate, toDate time.Time
-	if fromDateStr != "" && toDateStr != "" {
-		fromDate, err = time.Parse(time.RFC3339, fromDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha de inicio no es válida."})
-			return
-		}
-
-		toDate, err = time.Parse(time.RFC3339, toDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha final no es válida."})
-			return
-		}
-
-		if fromDate.After(toDate) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha de inicio no puede ser posterior a la fecha final."})
-			return
-		}
+	var fromDate *time.Time
+	if temp := c.Query("fromDate"); temp != "" {
+		val, _ := time.Parse(time.RFC3339, temp)
+		fromDate = &val
 	}
 
-	filename, err := services.DownloadHistoricalToursExcel(db.DBConn, fkCompany, fkCustomer, &Plate, &Imei, fromDateStr, toDateStr, page, pageSize)
+	var toDate *time.Time
+	if temp := c.Query("toDate"); temp != "" {
+		val, _ := time.Parse(time.RFC3339, temp)
+		toDate = &val
+	}
+
+	var page *uint
+	if temp := c.Query("page"); temp != "" {
+		val, _ := strconv.Atoi(temp)
+		valUint := uint(val)
+		page = &valUint
+	}
+
+	var pageSize *uint
+	if temp := c.Query("pageSize"); temp != "" {
+		val, _ := strconv.Atoi(temp)
+		valUint := uint(val)
+		pageSize = &valUint
+	}
+
+	tourIn := inputs.ToursInputs{
+		Db:         db.DBConn,
+		FkCompany:  fkCompany,
+		FkCustomer: fkCustomer,
+		Plate:      plate,
+		Imei:       imei,
+		FromDate:   fromDate,
+		ToDate:     toDate,
+		Page:       page,
+		PageSize:   pageSize,
+	}
+	filename, err := services.DownloadHistoricalToursExcel(tourIn)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error al obtener registros Avl: %v", err)})
 		return

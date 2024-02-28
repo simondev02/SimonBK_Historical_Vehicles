@@ -1,7 +1,7 @@
 package services
 
 import (
-	"SimonBK_Historical_Vehicles/api/views"
+	"SimonBK_Historical_Vehicles/api/views/outputs"
 	"SimonBK_Historical_Vehicles/domain/models" // Reemplaza "tu_paquete" con el nombre correcto de tu paquete
 	"encoding/json"
 	"errors"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetAllAvlRecords obtiene todos los registros Avl
-func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *string, Imei *string, fromDateStr string, toDateStr string) ([]views.HistoricalExcel, error) {
+func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *string, Imei *string, fromDateStr string, toDateStr string) ([]outputs.HistoricalExcel, error) {
 	// Caso 1: Ambas fechas están vacías
 	var fromDate, toDate time.Time
 	var err error
@@ -23,15 +23,15 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 		// Caso 2: Ninguna de las fechas está vacía
 		fromDate, err = time.Parse(time.RFC3339, fromDateStr)
 		if err != nil {
-			return []views.HistoricalExcel{}, fmt.Errorf("fecha de inicio inválida: %w", err)
+			return []outputs.HistoricalExcel{}, fmt.Errorf("fecha de inicio inválida: %w", err)
 		}
 		toDate, err = time.Parse(time.RFC3339, toDateStr)
 		if err != nil {
-			return []views.HistoricalExcel{}, fmt.Errorf("fecha final inválida: %w", err)
+			return []outputs.HistoricalExcel{}, fmt.Errorf("fecha final inválida: %w", err)
 		}
 	} else {
 		// Caso 3: Solo una de las fechas está vacía
-		return []views.HistoricalExcel{}, errors.New("por favor, especifique ambas fechas o deje ambas vacías para usar el rango predeterminado")
+		return []outputs.HistoricalExcel{}, errors.New("por favor, especifique ambas fechas o deje ambas vacías para usar el rango predeterminado")
 	}
 
 	// Asegurarse de que toDate vaya hasta la última hora del día
@@ -63,18 +63,18 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 	// Calcular el total de registros
 	var total int64
 	if err := query.Model(&models.AvlRecord{}).Count(&total).Error; err != nil {
-		return []views.HistoricalExcel{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
+		return []outputs.HistoricalExcel{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
 	}
 
 	var records []models.AvlRecord
 	if err := query.Find(&records).Error; err != nil {
-		return []views.HistoricalExcel{}, err
+		return []outputs.HistoricalExcel{}, err
 	}
 
-	var responseRecords []views.HistoricalExcel
+	var responseRecords []outputs.HistoricalExcel
 	for _, record := range records {
 		var properties map[string]interface{}
-		err = json.Unmarshal([]byte(record.Properties), &properties)
+		err = json.Unmarshal([]byte(*record.Properties), &properties)
 		if err != nil {
 			return nil, fmt.Errorf("error al deserializar Properties: %w", err)
 		}
@@ -89,7 +89,7 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 			totalOdometer = 0 // o cualquier valor predeterminado
 		}
 
-		responseRecord := views.HistoricalExcel{
+		responseRecord := outputs.HistoricalExcel{
 			ID:             record.ID,
 			Plate:          record.Plate,
 			Imei:           record.Imei,
@@ -109,8 +109,8 @@ func GetAllHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, Plate *
 			Hdop:           record.Hdop,
 			Pdop:           record.Pdop,
 			Event:          record.Event,
-			TotalMileage:   totalMileage,
-			TotalOdometer:  totalOdometer,
+			TotalMileage:   &totalMileage,
+			TotalOdometer:  &totalOdometer,
 			Properties:     properties,
 		}
 

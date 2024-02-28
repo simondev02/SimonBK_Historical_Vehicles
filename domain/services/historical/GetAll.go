@@ -80,14 +80,14 @@ func GetAllHistorical(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 	var responseRecords []interface{}
 	for _, record := range records {
 		var properties views.Properties
-		err := json.Unmarshal([]byte(record.Properties), &properties)
+		err := json.Unmarshal([]byte(*record.Properties), &properties)
 		if err != nil {
 			return views.Return{}, fmt.Errorf("error al deserializar las propiedades: %w", err)
 		}
 
 		var totalMileage *float64
-		if properties.TotalMileage != 0 {
-			totalMileage = &properties.TotalMileage
+		if properties.TotalMileage != nil {
+			totalMileage = properties.TotalMileage
 		}
 
 		responseRecord := views.Historical{

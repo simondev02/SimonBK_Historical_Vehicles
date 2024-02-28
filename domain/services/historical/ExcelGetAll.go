@@ -48,8 +48,8 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 		file.SetCellValue("Sheet1", fmt.Sprintf("Q%d", row), record.Hdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("R%d", row), record.Pdop)
 		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), record.Event)
-		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), math.Round(float64(record.TotalMileage)/1000))
-		file.SetCellValue("Sheet1", fmt.Sprintf("U%d", row), math.Round(float64(record.TotalOdometer)/1000))
+		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), math.Round(float64(*record.TotalMileage)/1000))
+		file.SetCellValue("Sheet1", fmt.Sprintf("U%d", row), math.Round(float64(*record.TotalOdometer)/1000))
 		file.SetCellValue("Sheet1", fmt.Sprintf("V%d", row), record.Properties)
 
 		// Para las propiedades adicionales, puedes decidir cómo manejarlas según tus necesidades
