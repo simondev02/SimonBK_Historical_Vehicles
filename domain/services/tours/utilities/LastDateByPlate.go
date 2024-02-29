@@ -15,9 +15,9 @@ func GetLastRecordDateByPlateOrImei(db *gorm.DB, plate, imei *string) (*time.Tim
 	var err error
 
 	if plate != nil {
-		err = db.Where("plate = ?", plate).Order("time_stamp_event desc").First(&record).Error
+		err = db.Where("plate ilike ?", plate).Order("time_stamp_event desc").First(&record).Error
 	} else if imei != nil {
-		err = db.Where("imei = ?", imei).Order("time_stamp_event desc").First(&record).Error
+		err = db.Where("imei ilike ?", imei).Order("time_stamp_event desc").First(&record).Error
 	} else {
 		return nil, fmt.Errorf("placa y imei no proporcionados")
 	}

@@ -1,28 +1,16 @@
 package tours
 
 import (
-	"SimonBK_Historical_Vehicles/api/views"
 	"SimonBK_Historical_Vehicles/api/views/inputs"
 	"SimonBK_Historical_Vehicles/api/views/outputs"
 	"SimonBK_Historical_Vehicles/domain/models"
-	"fmt"
 )
 
-func FindRecords(tourIn inputs.ToursInputs) (views.Return, error) {
+func FindRecordsExcel(tourIn inputs.ToursInputs) ([]outputs.ToursOutputs, error) {
 	var records []models.AvlRecord
 	db := tourIn.Db.Debug() // Habilitar la impresión de consultas SQL
 
-	// 1 .Verificar si Page y PageSize son nulos y asignar valores predeterminados
-	page := uint(1)
-	pageSize := uint(300)
-	if tourIn.Page != nil {
-		page = *tourIn.Page
-	}
-	if tourIn.PageSize != nil {
-		pageSize = *tourIn.PageSize
-	}
-
-	// 2. Crear consulta para obtener registros Avl
+	// Crear consulta para obtener registros Avl
 	query := db.Order("time_stamp_event desc").
 		Select("id, plate, imei, time_stamp_event, location, latitude, longitude, altitude").
 		Where("time_stamp_event BETWEEN ? AND ?", tourIn.FromDate, tourIn.ToDate)
@@ -43,27 +31,12 @@ func FindRecords(tourIn inputs.ToursInputs) (views.Return, error) {
 		query = query.Where("plate ILIKE ?", "%"+*tourIn.Plate+"%")
 	}
 
-	// 3 . Crear una copia de la consulta para contar el total de registros
-	countQuery := *query
-	var total int64
-	if err := countQuery.Model(&models.AvlRecord{}).Count(&total).Error; err != nil {
-		return views.Return{}, fmt.Errorf("error al contar registros Avl: %w", err)
+	// Ejecutar la consulta y asignar el resultado a records
+	if err := query.Find(&records).Error; err != nil {
+		return nil, err
 	}
 
-	// Aplicar Offset y Limit a la consulta original
-	query = query.Offset(int((page - 1) * pageSize)).
-		Limit(int(pageSize)).
-		Find(&records)
-
-	if query.Error != nil {
-		return views.Return{}, fmt.Errorf("error al obtener registros Avl: %w", query.Error)
-	}
-
-	if len(records) == 0 {
-		return views.Return{}, fmt.Errorf("este vehículo no tiene históricos")
-	}
-
-	var responseRecordsPoint []interface{}
+	var responseRecordsPoint []outputs.ToursOutputs
 	for _, record := range records {
 		responseRecordPoint := outputs.ToursOutputs{
 			ID:             record.ID,
@@ -78,10 +51,6 @@ func FindRecords(tourIn inputs.ToursInputs) (views.Return, error) {
 		responseRecordsPoint = append(responseRecordsPoint, responseRecordPoint)
 	}
 
-	return views.Return{
-		Page:     int(page),
-		PageSize: int(pageSize),
-		Total:    int(total),
-		Result:   responseRecordsPoint,
-	}, nil
+	// Devolver responseRecordsPoint en lugar de un objeto ToursOutputs vacío
+	return responseRecordsPoint, nil
 }

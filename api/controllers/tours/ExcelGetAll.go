@@ -49,7 +49,7 @@ func GetAllExcelToursHandler(c *gin.Context) {
 	fmt.Println(plate)
 
 	var imei *string
-	if temp := c.Query("imei"); temp != "" {
+	if temp := c.Query("Imei"); temp != "" {
 		imei = &temp
 	}
 

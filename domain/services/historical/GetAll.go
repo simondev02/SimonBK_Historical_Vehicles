@@ -44,7 +44,7 @@ func GetAllHistorical(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 
 	// Filtro por Plate
 	if Plate != nil && *Plate != "" {
-		query = query.Where("plate LIKE ?", "%"+*Plate+"%")
+		query = query.Where("plate ILIKE ?", "%"+*Plate+"%")
 	}
 
 	// Filtro por Imei
@@ -75,6 +75,10 @@ func GetAllHistorical(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pa
 	var records []models.AvlRecord
 	if err := query.Find(&records).Error; err != nil {
 		return views.Return{}, err
+	}
+
+	if len(records) == 0 {
+		return views.Return{}, fmt.Errorf("registros no encontrados")
 	}
 
 	var responseRecords []interface{}

@@ -45,7 +45,7 @@ func GetAllHistoricalToursHandler(c *gin.Context) {
 	if temp := c.Query("Plate"); temp != "" {
 		plate = &temp
 	}
-
+	fmt.Print(plate)
 	var imei *string
 	if temp := c.Query("Imei"); temp != "" {
 		imei = &temp
