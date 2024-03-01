@@ -2,9 +2,9 @@ package swagger
 
 type AvlRecordPoint struct {
 	ID             uint    `json:"id"`
-	Plate          string  `json:"Plate"`
-	TimeStampEvent string  `json:"TimeStampEvent"`
-	Location       string  `json:"Location"`
-	Latitude       float64 `json:"Latitude"`
-	Longitude      float64 `json:"Longitude"`
+	Plate          string  `json:"plate"`
+	TimeStampEvent string  `json:"timeStampEvent"`
+	Location       string  `json:"location"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
 }
