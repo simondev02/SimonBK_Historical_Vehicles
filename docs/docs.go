@@ -95,7 +95,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/avlrecords/point/": {
+        "/avlrecords/excel/": {
             "get": {
                 "security": [
                     {
@@ -110,7 +110,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "AvlRecordsPoints"
+                    "AvlRecords"
                 ],
                 "summary": "Obtiene todos los puntos de registros Avl",
                 "parameters": [
@@ -160,91 +160,361 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/avlrecords/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Obtiene un historico por su ID específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AvlRecords"
+                ],
+                "summary": "Obtiene un historico específico",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del Historico",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalles del vehículo",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.AvlRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "Error: ID inválido",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Error: Vehículo no encontrado",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Recupera todos los puntos de registros Avl con opciones de paginación y filtrado por FkCompany y FkCustomer si están presentes en el contexto.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tours"
+                ],
+                "summary": "Obtiene todos los puntos de registros Avl",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Número de página para la paginación",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Tamaño de página para la paginación",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Placa del vehículo",
+                        "name": "Plate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Imei del dispositivo",
+                        "name": "Imei",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de inicio para filtrar los registros Avl",
+                        "name": "fromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de fin para filtrar los registros Avl",
+                        "name": "toDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de puntos de registros Avl",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swagger.AvlRecordPoint"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/excel/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Recupera todos los puntos de registros Avl con opciones de paginación y filtrado por FkCompany y FkCustomer si están presentes en el contexto.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tours"
+                ],
+                "summary": "Obtiene todos los puntos de registros Avl",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Número de página para la paginación",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Tamaño de página para la paginación",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Placa del vehículo",
+                        "name": "Plate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Imei del dispositivo",
+                        "name": "Imei",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de inicio para filtrar los registros Avl",
+                        "name": "fromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fecha de fin para filtrar los registros Avl",
+                        "name": "toDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de puntos de registros Avl",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swagger.AvlRecordPoint"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Obtiene un historico por su ID específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tours"
+                ],
+                "summary": "Obtiene un historico específico",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del Historico",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalles del vehículo",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.AvlRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "Error: ID inválido",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Error: Vehículo no encontrado",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "swagger.AvlRecord": {
             "type": "object",
             "properties": {
-                "Altitude": {
+                "altitude": {
                     "type": "integer"
                 },
-                "Angle": {
+                "angle": {
                     "type": "integer"
                 },
-                "Company": {
+                "company": {
                     "type": "string"
                 },
-                "Customer": {
+                "customer": {
                     "type": "string"
                 },
-                "Event": {
+                "event": {
                     "type": "string"
                 },
-                "Hdop": {
+                "hdop": {
                     "type": "integer"
-                },
-                "Imei": {
-                    "type": "string"
-                },
-                "Ip": {
-                    "type": "string"
-                },
-                "Latitude": {
-                    "type": "number"
-                },
-                "Location": {
-                    "type": "string"
-                },
-                "Longitude": {
-                    "type": "number"
-                },
-                "Pdop": {
-                    "type": "integer"
-                },
-                "Plate": {
-                    "type": "string"
-                },
-                "Properties": {
-                    "type": "string"
-                },
-                "Satellites": {
-                    "type": "integer"
-                },
-                "Speed": {
-                    "type": "integer"
-                },
-                "TimeStampEvent": {
-                    "type": "string"
                 },
                 "id_company": {
                     "type": "integer"
                 },
                 "id_customer": {
                     "type": "integer"
+                },
+                "imei": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "pdop": {
+                    "type": "integer"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "satellites": {
+                    "type": "integer"
+                },
+                "speed": {
+                    "type": "integer"
+                },
+                "timeStampEvent": {
+                    "type": "string"
                 }
             }
         },
         "swagger.AvlRecordPoint": {
             "type": "object",
             "properties": {
-                "Latitude": {
-                    "type": "number"
-                },
-                "Location": {
-                    "type": "string"
-                },
-                "Longitude": {
-                    "type": "number"
-                },
-                "Plate": {
-                    "type": "string"
-                },
-                "TimeStampEvent": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "timeStampEvent": {
+                    "type": "string"
                 }
             }
         }
@@ -261,7 +531,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1",
-	Host:             "localhost:60030",
+	Host:             "",
 	BasePath:         "/Vehicle",
 	Schemes:          []string{},
 	Title:            "",

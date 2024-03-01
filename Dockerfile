@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Compilar la aplicación
-RUN go build -o SimonBK_vehiculos .
+RUN go build -o SimonBK_Historical_vehicles .
 
 # Exponer el puerto 8003
 EXPOSE 60060

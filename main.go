@@ -1,7 +1,6 @@
 // @API Historicos Avl
 // @Se encuentra el hostoricos de registro generados por los vehiculo y dispositivos
 // @version 1
-// @host localhost:60030
 // @BasePath /Vehicle
 // @SecurityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -11,6 +10,7 @@ package main
 import (
 	"SimonBK_Historical_Vehicles/docs"
 	"SimonBK_Historical_Vehicles/infra/db"
+	"log"
 
 	"SimonBK_Historical_Vehicles/routers"
 	"fmt"
@@ -32,6 +32,7 @@ func main() {
 		fmt.Println("Error al conectar con la base de datos:", err)
 		return
 	}
+
 	// Configurar CORS
 	r := gin.Default()
 
@@ -48,7 +49,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Mi API"
 	docs.SwaggerInfo.Description = "Esta es mi API"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:60060"
+	docs.SwaggerInfo.Host = os.Getenv("SERVICE_HOST") + ":" + os.Getenv("SERVICE_PORT")
 	docs.SwaggerInfo.BasePath = "/"
 
 	if err != nil {
@@ -62,11 +63,6 @@ func main() {
 	// Agregar la ruta de Swagger sin el middleware de validación de token
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Imprimir todas las rutas disponibles
-	for _, route := range r.Routes() {
-		fmt.Println(route.Path)
-	}
-
 	// Configurar la señal de captura
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -77,9 +73,15 @@ func main() {
 		db.CloseDB()
 		os.Exit(0)
 	}()
+	certFile := os.Getenv("TLS_CERT")
+	certKey := os.Getenv("TLS_KEY")
+	if certFile == "" || certKey == "" {
+		log.Println("Error al leer las variables de entorno.")
+		db.CloseDB()
+		os.Exit(1)
+	}
 
-	// Escuchar y servir
-	err = r.Run(":60060") // escucha y sirve en 0.0.0.0:60060  (por defecto)
+	err = r.RunTLS(":"+os.Getenv("SERVICE_PORT"), certFile, certKey) // escucha y sirve en 0.0.0.0:60060  (por defecto)
 
 	if err != nil {
 		fmt.Println("Error al iniciar el servidor:", err)
