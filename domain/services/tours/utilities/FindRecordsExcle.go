@@ -15,11 +15,11 @@ func FindRecordsExcel(tourIn inputs.ToursInputs) ([]outputs.ToursOutputs, error)
 		Select("id, plate, imei, time_stamp_event, location, latitude, longitude, altitude").
 		Where("time_stamp_event BETWEEN ? AND ?", tourIn.FromDate, tourIn.ToDate)
 
-	if tourIn.FkCompany != nil {
+	if tourIn.FkCompany != nil && *tourIn.FkCompany != 0 {
 		query = query.Where("id_company = ?", tourIn.FkCompany)
 	}
 
-	if tourIn.FkCustomer != nil {
+	if tourIn.FkCustomer != nil && *tourIn.FkCustomer != 0 {
 		query = query.Where("id_customer = ?", tourIn.FkCustomer)
 	}
 
