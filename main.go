@@ -49,7 +49,7 @@ func main() {
 	docs.SwaggerInfo.Title = "Mi API"
 	docs.SwaggerInfo.Description = "Esta es mi API"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = os.Getenv("SERVICE_HOST") + ":" + os.Getenv("SERVICE_PORT")
+	docs.SwaggerInfo.Host = os.Getenv("SWAGGER_HOST")
 	docs.SwaggerInfo.BasePath = "/"
 
 	if err != nil {
