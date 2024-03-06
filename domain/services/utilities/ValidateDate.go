@@ -13,11 +13,17 @@ func ValidateDates(param inputs.Params) (*time.Time, *time.Time, error) {
 
 		toDate, err := GetLastRecordDateByPlateOrImei(param.Db, param.Plate, param.Imei)
 		if err != nil {
-			return nil, nil, err
+			now := time.Now()
+			fromDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+			toDate := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, now.Location())
+			param.FromDate = &fromDate
+			param.ToDate = &toDate
+		} else {
+			fromDate := toDate.AddDate(0, 0, -1)
+			param.FromDate = &fromDate
+			param.ToDate = toDate
 		}
-		fromDate := toDate.AddDate(0, 0, -1)
-		param.FromDate = &fromDate
-		param.ToDate = toDate
+
 		// 2 . se aplican las dos fechasa
 	} else {
 		if param.FromDate.After(*param.ToDate) {

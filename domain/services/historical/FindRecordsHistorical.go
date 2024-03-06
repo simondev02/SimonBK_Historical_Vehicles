@@ -6,19 +6,21 @@ import (
 	"SimonBK_Historical_Vehicles/domain/models"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 func FindRecordsHistorical(tour inputs.Params) (views.Return, error) {
+
 	var records []models.AvlRecord
 	query := tour.Db.Order("time_stamp_event desc")
 
 	// Filtro por Plate
-	if tour.Plate != nil && *tour.Plate != "" {
+	if tour.Plate != nil {
 		query = query.Where("plate ILIKE ?", "%"+*tour.Plate+"%")
 	}
 
 	// Filtro por Imei
-	if tour.Imei != nil && *tour.Imei != "" {
+	if tour.Imei != nil {
 		query = query.Where("imei LIKE ?", "%"+*tour.Imei+"%")
 	}
 
@@ -43,11 +45,12 @@ func FindRecordsHistorical(tour inputs.Params) (views.Return, error) {
 		return views.Return{}, err
 	}
 	// Aplicar Offset y Limit a la consulta original
-	query = query.Offset((tour.Page - 1) * tour.PageSize).
+	query = query.Debug().Offset((tour.Page - 1) * tour.PageSize).
 		Limit(tour.PageSize).
 		Find(&records)
 
 	if query.Error != nil {
+		log.Println(query.Error)
 		return views.Return{}, fmt.Errorf("error al obtener registros Avl: %w", query.Error)
 	}
 
