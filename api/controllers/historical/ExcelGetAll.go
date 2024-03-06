@@ -2,11 +2,10 @@ package controllers
 
 import (
 	services "SimonBK_Historical_Vehicles/domain/services/historical"
-	"SimonBK_Historical_Vehicles/infra/db"
+	"SimonBK_Historical_Vehicles/domain/services/utilities"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,59 +24,14 @@ import (
 // @Security ApiKeyAuth
 // @Router /avlrecords/excel/ [get]
 func GetAllExcelHistoricalHandler(c *gin.Context) {
-	var fkCompany *int
-	var fkCustomer *int
 
-	fkCompanyValue, exists := c.Get("FkCompany")
-	if exists {
-		val, ok := fkCompanyValue.(int)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "FkCompany debe ser un número entero."})
-			return
-		}
-		fkCompany = &val
+	params, err := utilities.GetParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	fkCustomerValue, exists := c.Get("FkCustomer")
-	if exists {
-		val, ok := fkCustomerValue.(int)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "FkCustomer debe ser un número entero."})
-			return
-		}
-		fkCustomer = &val
-	}
-
-	Plate := c.DefaultQuery("Plate", "")
-	Imei := c.DefaultQuery("Imei", "")
-	fromDateStr := c.DefaultQuery("fromDate", "")
-	toDateStr := c.DefaultQuery("toDate", "")
-
-	var page, pageSize int
-	var err error
-
-	// Manejar la lógica de fechas
-	var fromDate, toDate time.Time
-	if fromDateStr != "" && toDateStr != "" {
-		fromDate, err = time.Parse(time.RFC3339, fromDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha de inicio no es válida."})
-			return
-		}
-
-		toDate, err = time.Parse(time.RFC3339, toDateStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha final no es válida."})
-			return
-		}
-
-		if fromDate.After(toDate) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "La fecha de inicio no puede ser posterior a la fecha final."})
-			return
-		}
-	}
-
-	filename, err := services.DownloadHistoricalExcel(db.DBConn, fkCompany, fkCustomer, page, pageSize, &Plate, &Imei, fromDateStr, toDateStr)
+	filename, err := services.DownloadHistoricalExcel(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error al obtener registros Avl: %v", err)})
 		return

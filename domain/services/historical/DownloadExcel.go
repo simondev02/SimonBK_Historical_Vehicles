@@ -1,16 +1,26 @@
 package services
 
 import (
+	"SimonBK_Historical_Vehicles/api/views/inputs"
+	"SimonBK_Historical_Vehicles/domain/services/utilities"
 	"fmt"
 	"math"
 	"time"
 
 	"github.com/xuri/excelize/v2"
-	"gorm.io/gorm"
 )
 
-func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page int, pageSize int, Plate *string, Imei *string, fromDateStr string, toDateStr string) (string, error) {
-	data, err := GetAllHistoricalExcel(db, FkCompany, FkCustomer, Plate, Imei, fromDateStr, toDateStr)
+func DownloadHistoricalExcel(params inputs.Params) (string, error) {
+
+	// 1.1 Validar fechas
+	fromDate, toDate, err := utilities.ValidateDates(params)
+	if err != nil {
+		return "", fmt.Errorf("error al validar fechas: %w", err)
+	}
+	params.FromDate = fromDate
+	params.ToDate = toDate
+
+	data, err := GetAllHistoricalExcel(params)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +65,7 @@ func DownloadHistoricalExcel(db *gorm.DB, FkCompany *int, FkCustomer *int, page 
 		// Para las propiedades adicionales, puedes decidir cómo manejarlas según tus necesidades
 	}
 
-	filename := fmt.Sprintf("Recorrido_%s_%s_%s.xlsx", *Plate, fromDateStr, toDateStr)
+	filename := fmt.Sprintf("Recorrido_%s_%s_%s.xlsx", *params.Plate, params.FromDate, params.ToDate)
 	if err := file.SaveAs(filename); err != nil {
 		return "", err
 	}

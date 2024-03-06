@@ -1,4 +1,4 @@
-package tours
+package utilities
 
 import (
 	"SimonBK_Historical_Vehicles/domain/models"
@@ -10,14 +10,15 @@ import (
 )
 
 func GetLastRecordDateByPlateOrImei(db *gorm.DB, plate, imei *string) (*time.Time, error) {
-	db.Debug()
+
 	var record models.AvlRecord
 	var err error
 
 	if plate != nil {
-		err = db.Where("plate ilike ?", plate).Order("time_stamp_event desc").First(&record).Error
+		err = db.Where("plate ilike ?", *plate).Order("time_stamp_event desc").First(&record).Error
+
 	} else if imei != nil {
-		err = db.Where("imei ilike ?", imei).Order("time_stamp_event desc").First(&record).Error
+		err = db.Where("imei ilike ?", *imei).Order("time_stamp_event desc").First(&record).Error
 	} else {
 		return nil, fmt.Errorf("placa y imei no proporcionados")
 	}

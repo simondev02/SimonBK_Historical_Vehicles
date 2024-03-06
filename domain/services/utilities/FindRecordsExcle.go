@@ -1,4 +1,4 @@
-package tours
+package utilities
 
 import (
 	"SimonBK_Historical_Vehicles/api/views/inputs"
@@ -6,7 +6,7 @@ import (
 	"SimonBK_Historical_Vehicles/domain/models"
 )
 
-func FindRecordsExcel(tourIn inputs.ToursInputs) ([]outputs.ToursOutputs, error) {
+func FindRecordsExcel(tourIn inputs.Params) ([]outputs.ToursOutputs, error) {
 	var records []models.AvlRecord
 	db := tourIn.Db.Debug() // Habilitar la impresión de consultas SQL
 

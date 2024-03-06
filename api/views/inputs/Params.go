@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ToursInputs struct {
+type Params struct {
 	Db         *gorm.DB
 	FkCompany  *uint
 	FkCustomer *uint
@@ -14,6 +14,6 @@ type ToursInputs struct {
 	Imei       *string
 	FromDate   *time.Time
 	ToDate     *time.Time
-	Page       *uint
-	PageSize   *uint
+	Page       int
+	PageSize   int
 }

@@ -2,20 +2,23 @@ package services
 
 import (
 	"SimonBK_Historical_Vehicles/api/views/inputs"
-	tours "SimonBK_Historical_Vehicles/domain/services/tours/utilities"
+	services "SimonBK_Historical_Vehicles/domain/services/utilities"
+
 	"fmt"
 
 	"github.com/xuri/excelize/v2"
 )
 
-func DownloadHistoricalToursExcel(tourIn inputs.ToursInputs) (string, error) {
+func DownloadHistoricalToursExcel(params inputs.Params) (string, error) {
 
-	fromDate, toDate, err := tours.ValidateDates(tourIn)
+	fromDate, toDate, err := services.ValidateDates(params)
 	if err != nil {
 		return "", fmt.Errorf("error al validar fechas: %w", err)
 	}
+	params.FromDate = fromDate
+	params.ToDate = toDate
 
-	data, err := tours.FindRecordsExcel(tourIn)
+	data, err := services.FindRecordsExcel(params)
 	if err != nil {
 		return "", err
 	}
@@ -42,10 +45,10 @@ func DownloadHistoricalToursExcel(tourIn inputs.ToursInputs) (string, error) {
 	}
 
 	var identifier string
-	if tourIn.Plate != nil {
-		identifier = *tourIn.Plate
+	if params.Plate != nil {
+		identifier = *params.Plate
 	} else {
-		identifier = *tourIn.Imei
+		identifier = *params.Imei
 	}
 
 	filename := fmt.Sprintf("Recorrido_%s_%s_%s.xlsx", identifier, fromDate, toDate)

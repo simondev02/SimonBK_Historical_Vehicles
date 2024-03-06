@@ -1,4 +1,4 @@
-package tours
+package services
 
 import (
 	"SimonBK_Historical_Vehicles/api/views"
@@ -8,52 +8,46 @@ import (
 	"fmt"
 )
 
-func FindRecords(tourIn inputs.ToursInputs) (views.Return, error) {
-	var records []models.AvlRecord
-	db := tourIn.Db.Debug() // Habilitar la impresión de consultas SQL
+func FindRecordsTours(tour inputs.Params) (views.Return, error) {
 
-	// 1 .Verificar si Page y PageSize son nulos y asignar valores predeterminados
-	page := uint(1)
-	pageSize := uint(300)
-	if tourIn.Page != nil {
-		page = *tourIn.Page
-	}
-	if tourIn.PageSize != nil {
-		pageSize = *tourIn.PageSize
-	}
+	var records []models.AvlRecord
+	db := tour.Db.Debug() // Habilitar la impresión de consultas SQL
 
 	// 2. Crear consulta para obtener registros Avl
 	query := db.Order("time_stamp_event desc").
 		Select("id, plate, imei, time_stamp_event, location, latitude, longitude, altitude").
-		Where("time_stamp_event BETWEEN ? AND ?", tourIn.FromDate, tourIn.ToDate)
+		Where("time_stamp_event BETWEEN ? AND ?", tour.FromDate, tour.ToDate)
 
-	if tourIn.FkCompany != nil && *tourIn.FkCompany > 0 {
-		query = query.Where("id_company = ?", tourIn.FkCompany)
+	if tour.FkCompany != nil && *tour.FkCompany > 0 {
+		query = query.Where("id_company = ?", tour.FkCompany)
 	}
 
-	if tourIn.FkCustomer != nil && *tourIn.FkCustomer > 0 {
-		query = query.Where("id_customer = ?", tourIn.FkCustomer)
+	if tour.FkCustomer != nil && *tour.FkCustomer > 0 {
+		query = query.Where("id_customer = ?", tour.FkCustomer)
 	}
 
-	if tourIn.Imei != nil {
-		query = query.Where("imei ILIKE ?", "%"+*tourIn.Imei+"%")
+	if tour.Imei != nil {
+		query = query.Where("imei ILIKE ?", "%"+*tour.Imei+"%")
 	}
 
-	if tourIn.Plate != nil {
-		query = query.Where("plate ILIKE ?", "%"+*tourIn.Plate+"%")
+	if tour.Plate != nil {
+		query = query.Where("plate ILIKE ?", "%"+*tour.Plate+"%")
 	}
 
 	// 3 . Crear una copia de la consulta para contar el total de registros
 	countQuery := *query
 	var total int64
-	if err := countQuery.Model(&models.AvlRecord{}).Count(&total).Error; err != nil {
+	if err := countQuery.Model(&records).Count(&total).Error; err != nil {
 		return views.Return{}, fmt.Errorf("error al contar registros Avl: %w", err)
 	}
 
-	// Aplicar Offset y Limit a la consulta original
-	query = query.Offset(int((page - 1) * pageSize)).
-		Limit(int(pageSize)).
-		Find(&records)
+	// Aplicar Offset y Limit a la consulta original solo si Page y PageSize no son 0
+	if tour.Page != 0 && tour.PageSize != 0 {
+		query = query.Offset((tour.Page - 1) * tour.PageSize).
+			Limit(tour.PageSize)
+	}
+
+	query = query.Find(&records)
 
 	if query.Error != nil {
 		return views.Return{}, fmt.Errorf("error al obtener registros Avl: %w", query.Error)
@@ -79,8 +73,8 @@ func FindRecords(tourIn inputs.ToursInputs) (views.Return, error) {
 	}
 
 	return views.Return{
-		Page:     int(page),
-		PageSize: int(pageSize),
+		Page:     tour.Page,
+		PageSize: tour.PageSize,
 		Total:    int(total),
 		Result:   responseRecordsPoint,
 	}, nil

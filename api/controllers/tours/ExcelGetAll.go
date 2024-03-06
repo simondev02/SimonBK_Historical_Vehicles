@@ -1,14 +1,11 @@
 package controllers
 
 import (
-	inputs "SimonBK_Historical_Vehicles/api/views/inputs"
 	services "SimonBK_Historical_Vehicles/domain/services/tours"
-	"SimonBK_Historical_Vehicles/infra/db"
+	"SimonBK_Historical_Vehicles/domain/services/utilities"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,67 +27,13 @@ import (
 // @Router /tours/excel/ [get]
 func GetAllExcelToursHandler(c *gin.Context) {
 
-	var fkCompany *uint
-	if temp, exists := c.Get("FkCompany"); exists {
-		val := uint(temp.(int))
-		fkCompany = &val
+	params, err := utilities.GetParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	var fkCustomer *uint
-	if temp, exists := c.Get("FkCustomer"); exists {
-		val := uint(temp.(int))
-		fkCustomer = &val
-	}
-
-	var plate *string
-	if temp := c.Query("Plate"); temp != "" {
-		plate = &temp
-	}
-	fmt.Println(plate)
-
-	var imei *string
-	if temp := c.Query("Imei"); temp != "" {
-		imei = &temp
-	}
-
-	var fromDate *time.Time
-	if temp := c.Query("fromDate"); temp != "" {
-		val, _ := time.Parse(time.RFC3339, temp)
-		fromDate = &val
-	}
-
-	var toDate *time.Time
-	if temp := c.Query("toDate"); temp != "" {
-		val, _ := time.Parse(time.RFC3339, temp)
-		toDate = &val
-	}
-
-	var page *uint
-	if temp := c.Query("page"); temp != "" {
-		val, _ := strconv.Atoi(temp)
-		valUint := uint(val)
-		page = &valUint
-	}
-
-	var pageSize *uint
-	if temp := c.Query("pageSize"); temp != "" {
-		val, _ := strconv.Atoi(temp)
-		valUint := uint(val)
-		pageSize = &valUint
-	}
-
-	tourIn := inputs.ToursInputs{
-		Db:         db.DBConn,
-		FkCompany:  fkCompany,
-		FkCustomer: fkCustomer,
-		Plate:      plate,
-		Imei:       imei,
-		FromDate:   fromDate,
-		ToDate:     toDate,
-		Page:       page,
-		PageSize:   pageSize,
-	}
-	filename, err := services.DownloadHistoricalToursExcel(tourIn)
+	filename, err := services.DownloadHistoricalToursExcel(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error al obtener registros Avl: %v", err)})
 		return
