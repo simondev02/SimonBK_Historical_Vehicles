@@ -33,7 +33,7 @@ func GetAllAvlRecordsHandler(c *gin.Context) {
 
 	records, err := services.GetAllHistorical(params)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener registros Avl " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
