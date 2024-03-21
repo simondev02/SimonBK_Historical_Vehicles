@@ -27,6 +27,9 @@ func GetParams(c *gin.Context) (inputs.Params, error) {
 
 	if temp := c.Query("Plate"); temp != "" {
 		params.Plate = &temp
+	} else {
+		return params, fmt.Errorf("por favor, proporcione una placa válida")
+
 	}
 
 	if temp := c.Query("Imei"); temp != "" {

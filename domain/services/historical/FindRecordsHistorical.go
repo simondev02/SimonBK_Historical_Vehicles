@@ -36,8 +36,8 @@ func FindRecordsHistorical(tour inputs.Params) (views.Return, error) {
 	}
 
 	// Calcular el total de registros
-	var total int64
-	if err := query.Model(&records).Count(&total).Error; err != nil {
+	var total = 100
+	if err := query.Model(&records).Limit(100).Error; err != nil {
 		return views.Return{}, fmt.Errorf("error al obtener el total de registros Avl: %w", err)
 	}
 
